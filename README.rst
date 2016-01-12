@@ -18,29 +18,32 @@ Mopidy-BTSource
    :target: https://coveralls.io/r/ismailof/mopidy-btsource
    :alt: Test coverage
 
-Mopidy extension to control music received via BT from another device
+Mopidy extension to control music received via bluetooth from another device. 
 
+Current features include:
+  - Remote Playback Control (play/pause/stop)
+  - Remote Playback Monitor: Display Artist/Track/Album Info  
+
+Current feautures do not include:
+  - scanning or pairing with the BT device
+  - actual reproduction of the audio (it is delivered via PulseAudio)
+
+Currently is on very alpha state, more of a proof of concept. No unit test or alike have been run.
+Tested with Mopidy 1.1.1
 
 Installation
 ============
 
-Install by running::
+Install by running:
 
-    pip install Mopidy-BTSource
-
-Or, if available, install the Debian/Ubuntu package from `apt.mopidy.com
-<http://apt.mopidy.com/>`_.
-
+    git clone git@github.com:ismailof/mopidy-btsource
+    sudo python setup.py install
+    
 
 Configuration
 =============
 
-Before starting Mopidy, you must add configuration for
-Mopidy-BTSource to your Mopidy configuration file::
-
-    [btsource]
-    # TODO: Add example of extension config
-
+No current configuration needed
 
 Project resources
 =================
