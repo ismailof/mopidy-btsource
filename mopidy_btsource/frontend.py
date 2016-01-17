@@ -18,10 +18,10 @@ class BTSourceFrontend(pykka.ThreadingActor, CoreListener):
         self.core = core       
         
         self.bt_player = BTPlayerController()        
-        #self.bt_player.register_callback('Connection_Change', self.bt_conn_changed)
-        self.bt_player.register_callback('Status_Change', self.bt_state_changed)
-        self.bt_player.register_callback('Track_Change', self.bt_track_changed)
-        self.bt_player.register_callback('Position_Change', self.bt_position_changed)
+        #self.bt_player.register_event('Connection_Change', self.bt_conn_changed)
+        self.bt_player.register_event('Status_Change', self.bt_state_changed)
+        self.bt_player.register_event('Track_Change', self.bt_track_changed)
+        self.bt_player.register_event('Position_Change', self.bt_position_changed)
         
         self.bt_track_selected = False;
         
@@ -92,7 +92,7 @@ class BTSourceFrontend(pykka.ThreadingActor, CoreListener):
             else:
                 #Stop bluetooth source from playing audio
                 self.bt_track_selected = False
-                logger.info('Started playback of a non-BT Track. Stopping BT Player')
+                logger.debug('Started playback of a non-BT Track. Stopping BT Player')
                 self.bt_player.stop()                
     
     # Private helper functions            

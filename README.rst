@@ -55,7 +55,8 @@ Project resources
 Changelog
 =========
 
-v0.1.0 (UNRELEASED)
+v0.2.5 (UNRELEASED)
 ----------------------------------------
 
-- Initial release.
+- Initial release on Git.
+- First more or less usable version

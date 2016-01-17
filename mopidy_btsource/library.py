@@ -22,7 +22,7 @@ class BTSourceLibWrapper(backend.LibraryProvider):
     It injects a simple uri "bt:something" so that the BTSource BackEnd is called
     TODO: Discovery Mode, Pairing and Trusting new devices
     """    
-    root_directory = models.Ref.directory(uri=URI_BT_ROOT, name='BT Source')
+    root_directory = models.Ref.directory(uri=URI_BT_ROOT, name='Bluetooth')
     
     def __init__(self, backend):
         super(BTSourceLibWrapper, self).__init__(backend)        
@@ -47,9 +47,10 @@ class BTSourceLibWrapper(backend.LibraryProvider):
                 devUri = URI_BT_DEVICE
                 result.append( models.Ref.playlist(uri=devUri, name=devName) )           
         elif uri == URI_BT_DEVICE:
-            #Navigating the device. Show current Track
-            current_track = translate_track_data(self.bt_player.get_current_track())
-            result.append(models.Ref.track(uri=current_track.uri, name=current_track.name))
+            if self.bt_player.is_connected():
+                #Navigating the device. Show current Track
+                current_track = translate_track_data(self.bt_player.get_current_track())
+                result.append(models.Ref.track(uri=current_track.uri, name=current_track.name))
         elif uri == URI_BT_SCAN:
             #Add calls to start bluetooth scanning
             self.bt_player.scanDevices()
@@ -70,12 +71,13 @@ class BTSourceLibWrapper(backend.LibraryProvider):
         tracks = []
         if uri == URI_BT_SCAN:
             tracks.append(models.Track(uri=uri, name='Scan for Devices'))
-        elif uri == URI_BT_SONG:                
-            bt_current_track = self.bt_player.get_current_track()
-            if bt_current_track:
-                tracks.append(translate_track_data(bt_current_track, uri))
+        elif uri == URI_BT_SONG:
+            if self.bt_player.is_connected():
+                bt_current_track = self.bt_player.get_current_track()
+                if bt_current_track:
+                    tracks.append(translate_track_data(bt_current_track, uri))
         
-        logger.debug('Lookup on %s -> %s', uri, tracks)
+        logger.debug('Lookup on %s. Tracks: {}', uri, tracks)
         return tracks
     
 

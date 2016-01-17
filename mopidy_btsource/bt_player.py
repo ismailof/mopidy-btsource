@@ -98,9 +98,9 @@ class BTPlayerController(object):
                 self.status = str(player_properties["Status"])
                 self._trigger_event ('Status_Change', self.status)
              
-            logger.info ('BT-Source: Connected to device %s', self.deviceAlias)
+            logger.info ('Connected to bluetooth device %s', self.deviceAlias)
         else:
-            logger.info ('BT-Source: No connected devices')
+            logger.info ('No connected bluetooth devices')
     
     def findAdapter(self):
         """Find any current media players and associated device"""
@@ -116,14 +116,15 @@ class BTPlayerController(object):
         if adapter_path:
             self.adapter = self.bus.get_object("org.bluez", adapter_path)
             adapter_properties = self.adapter.GetAll(ADAPTER_IFACE, dbus_interface="org.freedesktop.DBus.Properties")                        
-            logger.info ("BT-Source: Found BT adapter %s", adapter_properties["Name"])                                   
+            logger.info ("Found bluetooth adapter %s (%s)", adapter_properties["Name"], adapter_properties["Address"])                                   
             
             #logger.info (adapter_properties)
         else:
-            logger.info ("BT-Source: No BT adapters found")
+            logger.info ("No bluetooth adapters found")
     
     def scanDevices(self):
         #self.adapter.StartDiscovering(interface=ADAPTER_IFACE)
+        self.adapter.Set(ADAPTER_IFACE, 'Discoverable', True, dbus_interface="org.freedesktop.DBus.Properties")                        
         pass        
     
     def getPlayer(self, path):
@@ -225,7 +226,7 @@ class BTPlayerController(object):
     
     ####################            
         
-    def register_callback (self, event, callback):
+    def register_event (self, event, callback):
         self.callback_fcns[event] = callback
     
     def _trigger_event (self, event, *args):            
