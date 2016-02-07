@@ -55,8 +55,13 @@ Project resources
 Changelog
 =========
 
+
+v0.3.0 (UNRELEASED)
+----------------------------------------
+- Using stream_title instead of full tracks. Less nice but also less invasive
+
+
 v0.2.5 (UNRELEASED)
 ----------------------------------------
-
 - Initial release on Git.
 - First more or less usable version

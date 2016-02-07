@@ -6,7 +6,7 @@ from mopidy import backend
 from mopidy import models
 
 from .helper import *
-from .bt_player import BTPlayerController
+from .bt_player import BTPlayerController, BTPlayerUri
 
 logger = logging.getLogger(__name__)
 
@@ -16,10 +16,6 @@ class BTSourcePlaybackProvider(backend.PlaybackProvider):
         super(BTSourcePlaybackProvider, self).__init__(audio, backend)
        
         self.bt_player = BTPlayerController()
-        self.audio = audio; 
-        
-        self.audio.prepare_change();
-        self.audio.set_appsrc('none');   
 
     #Orders to BT-Player       
     
@@ -38,49 +34,21 @@ class BTSourcePlaybackProvider(backend.PlaybackProvider):
     def stop(self):
         self.bt_player.stop()
         return True
-                   
+
     def get_time_position(self):                 
         return self.bt_player.get_time_position()            
-    
-    """ Override default playback functions to avoid operations on gstreamer """
-    
-    #INTERFAZ AUDIO    
-    def emit_data(self, buffer_):
-        return True
-    
-    def emit_end_of_stream(self):
-        pass    
         
+    def seek(self, position):
+        return False           
+               
     def translate_uri(self, uri):
-        if uri != URI_BT_SONG:
+        if uri != BTPlayerUri.BT_SONG:
             return None
         else:
-            return uri + ':appsrc//'
+            return 'appsrc://' + uri
     
-    def set_position(self, position):
-        return False      
-
-    def start_playback(self):
-        #self.bt_player.play()
-        return True
-
-    def pause_playback(self):
-        #self.bt_player.pause()
-        return True
-
     def prepare_change(self):
         return True
-
-    def stop_playback(self):
-        self.bt_player.stop()
-        return True
-
-    def wait_for_state_change(self):
-        pass
-
-    def enable_sync_handler(self):
-        pass
-
-    def _set_state(self, state):
-        return True
-
+    
+    def change_track(self, track):
+        return track is not None

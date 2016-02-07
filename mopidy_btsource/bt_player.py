@@ -1,3 +1,4 @@
+
 from __future__ import unicode_literals
 
 import time
@@ -9,6 +10,13 @@ import gobject
 import logging
 
 from helper import *
+
+class BTPlayerUri (object):
+    BT_ROOT = 'bt:root'
+    BT_SCAN = 'bt:scan'
+    BT_DEVICE = 'bt:dev'
+    BT_SONG = 'bt:stream'
+
 
 SERVICE_NAME = "org.bluez"
 AGENT_IFACE = SERVICE_NAME + '.Agent1'
@@ -30,7 +38,7 @@ class BTPlayerController(object):
     device = None
     deviceAlias = None
     player = None
-    connected = None    
+    connected = False    
     status = None
     position = None
     callback_fcns = {};
@@ -98,9 +106,9 @@ class BTPlayerController(object):
                 self.status = str(player_properties["Status"])
                 self._trigger_event ('Status_Change', self.status)
              
-            logger.info ('Connected to bluetooth device %s', self.deviceAlias)
+            logger.info ('Connected to bluetooth source %s', self.deviceAlias)
         else:
-            logger.info ('No connected bluetooth devices')
+            logger.info ('No bluetooth sources connected')
     
     def findAdapter(self):
         """Find any current media players and associated device"""
@@ -146,17 +154,14 @@ class BTPlayerController(object):
         if iface == DEVICE_IFACE:
             #TODO: Avoid repetition
             if "Connected" in changed:
-                self.connected = changed["Connected"]
-                self._trigger_event ('Connection_Change', self.connected)
+                if not changed["Connected"]:
+                    self.connected = False
+                    self._trigger_event ('Connection_Change', self.connected)
         elif iface == CONTROL_IFACE:
-            if "Connected" in changed:
-                self.connected = changed["Connected"]
+            if "Connected" in changed:                
                 if changed["Connected"]:
                     self.findPlayer()
-                    self._trigger_event ('Connection_Change', self.connected)
-                # if changed["State"]:
-                    # pass
-                    # #OJO! Aqui tambien cambia el State (no Status) -> active, pending, stopped
+                    self._trigger_event ('Connection_Change', self.connected)                
         elif iface == PLAYER_IFACE:
             if "Track" in changed:
                 self.track = changed["Track"] 
@@ -172,28 +177,31 @@ class BTPlayerController(object):
     
         
     def next(self):
-        logger.debug ('Orden recibida: NEXT')
+        logger.info ('Sending Playback command to bluetooth player: NEXT')
         self.player.Next(dbus_interface=PLAYER_IFACE)
 
     def previous(self):
-        logger.debug ('Orden recibida: PREVIOUS')
+        logger.info ('Sending Playback command to bluetooth player: PREVIOUS')
         self.player.Previous(dbus_interface=PLAYER_IFACE)
 
     def play(self):
-        logger.debug ('Orden recibida: PLAY')
-        self.player.Play(dbus_interface=PLAYER_IFACE)
+        logger.debug ('Sending Playback command to bluetooth player: PLAY')
+        if self.status != 'playing':
+            self.player.Play(dbus_interface=PLAYER_IFACE)
 
     def pause(self):
-        logger.debug ('Orden recibida: PAUSE')
-        self.player.Pause(dbus_interface=PLAYER_IFACE)
+        logger.debug ('Sending Playback command to bluetooth player: PAUSE')
+        if self.status != 'paused':
+            self.player.Pause(dbus_interface=PLAYER_IFACE)
 
     def stop(self):
-        logger.debug ('Orden recibida: STOP')
-        self.player.Stop(dbus_interface=PLAYER_IFACE)
+        logger.debug ('Sending Playback command to bluetooth player: STOP')
+        if self.status != 'stopped':
+            self.player.Stop(dbus_interface=PLAYER_IFACE)
     
 ####### FUNCIONES PROPIAS                   
                 
-    def getDeviceName(self):        
+    def get_device_name(self):        
         if self.deviceAlias:
             return unicode(self.deviceAlias)
         else:
@@ -205,6 +213,22 @@ class BTPlayerController(object):
             if bt_track:
                 self.track = bt_track
                 return self.track
+            else:
+                return None            
+        else:
+            return None
+            
+    def get_stream_title(self):
+        #set of keywords used by common music players to indicate unknown artist
+        # eg. ivoox player uses <unknown>
+        unknown = {'<unknown>'}
+        if self.player:
+            bt_track = self.player.Get(PLAYER_IFACE, "Track", dbus_interface="org.freedesktop.DBus.Properties")
+            if bt_track:
+                track_name = bt_track.get('Title') if bt_track.get('Title') not in unknown else None
+                track_artist = bt_track.get('Artist') if bt_track.get('Artist') not in unknown else None
+                stream_title = ' - '.join([track_artist, track_name])
+                return stream_title
             else:
                 return None            
         else:
