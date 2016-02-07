@@ -93,7 +93,7 @@ class BTSourceLibWrapper(backend.LibraryProvider):
         bt_info = {
             'name' : unicode(self.bt_player.get_device_name()) ,
             'artists' : [models.Artist(name='Bluetooth Player')]  ,
-            'album' : models.Album(name='BTSource extension')) ,
+            'album' : models.Album(name='BTSource extension') ,
             'uri': uri ,
             }                    
         return models.Track (**bt_info)

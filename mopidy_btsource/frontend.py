@@ -19,7 +19,7 @@ class BTSourceFrontend(pykka.ThreadingActor, CoreListener):
         self.core = core       
         
         self.bt_player = BTPlayerController()        
-        #self.bt_player.register_event('Connection_Change', self.bt_conn_changed)
+        self.bt_player.register_event('Connection_Change', self.bt_conn_changed)
         self.bt_player.register_event('Status_Change', self.bt_state_changed)
         self.bt_player.register_event('Track_Change', self.bt_track_changed)
         self.bt_player.register_event('Position_Change', self.bt_position_changed)
@@ -36,6 +36,15 @@ class BTSourceFrontend(pykka.ThreadingActor, CoreListener):
     ## Functions triggered by changes on bluetooth player
     ##    BT Player -> Mopidy     
  
+    def bt_conn_changed (self, bt_connected):                        
+        logger.debug ("BT Player Connection State changed to '%s'", bt_connected)
+        if not bt_connected:
+            self.bt_track_changed(None)
+            self.bt_state_changed('stopped')
+            self.bt_position_changed(0)                                    
+        self.bt_connected = bt_connected
+ 
+ 
     def bt_state_changed (self, bt_state):       
         translate_state = {'playing':PlaybackState.PLAYING,
                            'paused':PlaybackState.PAUSED,
@@ -49,6 +58,7 @@ class BTSourceFrontend(pykka.ThreadingActor, CoreListener):
                     self.core.playback.set_state(playback_state);
             else:
                 logger.debug ("BT Player state not recognized: '%s'", bt_state)
+
  
     def bt_track_changed (self, bt_track):         
         try:            
@@ -60,7 +70,7 @@ class BTSourceFrontend(pykka.ThreadingActor, CoreListener):
                 else:
                     self._set_stream_title(None)
             else:                
-                #HACK: If bluetooth uri is not selected, stop source bluetooth to avoid simultaneous playing
+                #If bluetooth uri is not selected, stop source bluetooth to avoid simultaneous playing
                 self.bt_player.stop()
                 
         except Exception as ex:
@@ -80,11 +90,6 @@ class BTSourceFrontend(pykka.ThreadingActor, CoreListener):
         if self.bt_player.is_connected():
             if self._is_bt_selected:            
                 self._refresh_bt_position(time_position)      
-  
-    #def track_playback_resumed(self, tl_track):
-        #if self.bt_player.is_connected():
-            #if self._is_bt_track(tl_track):                
-                #self.send ('stream_title_changed', title=self.bt_player.get_stream_title())
   
     def track_playback_started(self, tl_track):        
         if self.bt_player.is_connected():
@@ -123,5 +128,3 @@ class BTSourceFrontend(pykka.ThreadingActor, CoreListener):
         #It seems for now there is no method to update the value of stream_title in playback         
         self.core.playback._stream_title = title
         self.send ('stream_title_changed', title=title)        
-        #At least notify the clients
-        #

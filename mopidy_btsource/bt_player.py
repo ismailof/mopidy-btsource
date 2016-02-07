@@ -234,6 +234,13 @@ class BTPlayerController(object):
         else:
             return None
             
+    def get_player_state(self):
+        if self.player:
+            self.status = self.player.Get(PLAYER_IFACE, "Status", dbus_interface="org.freedesktop.DBus.Properties")            
+            return self.status
+        else:
+            return None
+            
     def get_time_position(self):
         if self.player:
             position = self.player.Get(PLAYER_IFACE, "Position", dbus_interface="org.freedesktop.DBus.Properties")
