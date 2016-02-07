@@ -14,7 +14,7 @@ from mopidy import config, ext
 from .frontend import BTSourceFrontend        
 from .backend import BTSourceBackend            
 
-__version__ = '0.2.5'
+__version__ = '0.3.0'
 
 # TODO: If you need to log, use loggers named after the current Python module
 logger = logging.getLogger(__name__)
