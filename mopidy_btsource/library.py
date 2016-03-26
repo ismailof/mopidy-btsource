@@ -81,10 +81,8 @@ class BTSourceLibWrapper(backend.LibraryProvider):
 
         tracks = []
         for uri in uris:
-            if uri.startswith(BTPlayerUri.BT_SONG):
-                tracks.append(self.compose_bt_track(uri=BTPlayerUri.BT_SONG))
-            elif uri.startswith(BTPlayerUri.BT_DEVICE):
-                tracks.append(self.compose_bt_track(uri=BTPlayerUri.BT_SONG))
+            if uri.startswith(BTPlayerUri.BT_SONG) or uri.startswith(BTPlayerUri.BT_DEVICE):
+                tracks.extend(self.compose_bt_track(uri=BTPlayerUri.BT_SONG) or [])
         return tracks
 
     def compose_bt_track(self, uri=BTPlayerUri.BT_SONG):
