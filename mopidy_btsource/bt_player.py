@@ -6,9 +6,9 @@ import signal
 import dbus
 import dbus.service
 import dbus.mainloop.glib
-import gobject
 import logging
 
+from gi.repository import GObject
 from helper import *
 
 class BTPlayerUri (object):
@@ -56,7 +56,7 @@ class BTPlayerController(object):
     def __init__(self):
         """Specify a signal handler, and find any connected media players"""
         if not self.bus:
-            gobject.threads_init()
+            GObject.threads_init()
             dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
                     
             self.bus = dbus.SystemBus()  
@@ -72,7 +72,7 @@ class BTPlayerController(object):
 
     def start(self):
         """Start the BluePlayer by running the gobject Mainloop()"""                
-        self.mainloop = gobject.MainLoop()
+        self.mainloop = GObject.MainLoop()
         self.mainloop.run()
                 
     def end(self):
@@ -156,6 +156,7 @@ class BTPlayerController(object):
             if "Connected" in changed:
                 if not changed["Connected"]:
                     self.connected = False
+                    self.player = None
                     self._trigger_event ('Connection_Change', self.connected)
         elif iface == CONTROL_IFACE:
             if "Connected" in changed:                

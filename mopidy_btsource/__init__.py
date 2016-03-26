@@ -3,18 +3,12 @@ from __future__ import unicode_literals
 import logging
 import os
 
-# TODO: Remove entirely if you don't register GStreamer elements below
-import pygst
-pygst.require('0.10')
-import gst
-import gobject
-
 from mopidy import config, ext
 
 from .frontend import BTSourceFrontend        
 from .backend import BTSourceBackend            
 
-__version__ = '0.3.0'
+__version__ = '0.4.0'
 
 # TODO: If you need to log, use loggers named after the current Python module
 logger = logging.getLogger(__name__)
@@ -43,5 +37,4 @@ class Extension(ext.Extension):
         registry.add('http:static', {
             'name': self.ext_name,
             'path': os.path.join(os.path.dirname(__file__), 'public'),
-        })     
-    
+        })

@@ -90,25 +90,28 @@ class BTSourceLibWrapper(backend.LibraryProvider):
         ##New behaviour -> Use track structure with the device name and info        
         if not self.bt_player.is_connected():
             return None        
+        dev_name = unicode(self.bt_player.get_device_name())        
         bt_info = {
-            'name' : unicode(self.bt_player.get_device_name()) ,
-            'artists' : [models.Artist(name='Bluetooth Player')]  ,
-            'album' : models.Album(name='BTSource extension') ,
-            'uri': uri ,
+            'name' : dev_name,
+            'artists' : [models.Artist(name='Bluetooth Player')],
+            'album' : models.Album(name=dev_name, uri=BTPlayerUri.BT_DEVICE),
+            'uri': uri,
             }                    
         return models.Track (**bt_info)
     
     def translate_track_data (bt_track_data, uri):                                
         if bt_track_data:                                
             mp_track_data = {
-                'name' : unicode(bt_track_data.get('Title',''))  ,            
-                'artists' : [models.Artist(name=unicode(bt_track_data.get('Artist')))]  ,
-                'album' : models.Album(name=unicode(bt_track_data.get('Album'))) ,       
+                'uri' : uri,
+                'name' : unicode(bt_track_data.get('Title','')),            
+                'artists' : [models.Artist(name=unicode(bt_track_data.get('Artist')))],
+                'album' : models.Album(name=unicode(bt_track_data.get('Album'))),       
                 'length' : int(bt_track_data.get('Duration')) if bt_track_data.get('Duration') != 0xFFFFFFFF else None, 
-                'genre' : unicode(bt_track_data.get('Genre')) ,
-                'uri' : uri ,
+                'genre' : unicode(bt_track_data.get('Genre')),
+#                'track_no' :                        
                 }            
             return models.Track (**mp_track_data)    
         else:
             return {}
     
+   
