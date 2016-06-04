@@ -8,4 +8,4 @@ install:
     - pip install pep8
 # command to run tests
 script:
-  - pep8 --exclude=migrations --ignore=E501 mopidy_json_client
+  - pep8 --exclude=migrations --ignore=E501 mopidy_btsource
